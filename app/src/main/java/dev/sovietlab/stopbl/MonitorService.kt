@@ -30,6 +30,10 @@ class MonitorService : Service() {
         private const val NOTIF_ID = 1
         private const val GRACE_MS = 600L
         private const val POLL_MS = 1500L
+        // A tecla de mídia pode ser perdida enquanto o sistema troca a rota de
+        // áudio após a desconexão; reenviamos até confirmar a pausa.
+        private const val VERIFICAR_MS = 900L
+        private const val MAX_TECLA_TENTATIVAS = 2
 
         @Volatile
         var running: Boolean = false
@@ -54,6 +58,7 @@ class MonitorService : Service() {
     // chamada lançar SecurityException, não tentamos de novo.
     private var sessionsBloqueadas = false
     private var pendingPause: Runnable? = null
+    private var pendenteVerificacao: Runnable? = null
     private var lastSeen: Set<String> = emptySet()
 
     // A API 36 removeu o onConnectionStateChanged do proxy; o caminho estável
@@ -228,13 +233,40 @@ class MonitorService : Service() {
                 setLastEvent("Habilite a acessibilidade para pausar")
             !StopBLAccessibilityService.isMediaActive(this) ->
                 setLastEvent("Nada tocando — sem pausa")
-            !StopBLAccessibilityService.sendMediaPlayPause() ->
-                setLastEvent("Tecla de mídia falhou")
-            else -> {
+            else -> enviarTeclaComVerificacao(0)
+        }
+    }
+
+    // A tecla é um toggle: enviamos, esperamos a rota de áudio assentar e
+    // confirmamos com isMusicActive(). Se ainda estiver tocando (tecla
+    // perdida, ou o player já tinha pausado e o toggle retomou), reenviamos.
+    private fun enviarTeclaComVerificacao(tentativa: Int) {
+        pendenteVerificacao?.let { handler.removeCallbacks(it) }
+        if (!StopBLAccessibilityService.sendMediaPlayPause()) {
+            setLastEvent("Tecla de mídia falhou")
+            return
+        }
+        Log.d(TAG, "Tecla play/pause enviada (tentativa $tentativa)")
+        val r = Runnable {
+            pendenteVerificacao = null
+            if (safeConnectedCount() > 0) {
+                setLastEvent("A2DP reconectou — sem pausa")
+                return@Runnable
+            }
+            if (StopBLAccessibilityService.isMediaActive(this@MonitorService)) {
+                if (tentativa < MAX_TECLA_TENTATIVAS) {
+                    Log.d(TAG, "Ainda tocando — reenviando tecla")
+                    enviarTeclaComVerificacao(tentativa + 1)
+                } else {
+                    setLastEvent("Tecla de mídia não pausou")
+                }
+            } else {
                 pauseCount++
                 setLastEvent("Pausa via tecla de mídia")
             }
         }
+        pendenteVerificacao = r
+        handler.postDelayed(r, VERIFICAR_MS)
     }
 
     private fun safePackageName(c: MediaController): String {
