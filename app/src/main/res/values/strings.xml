@@ -3,6 +3,9 @@
     <string name="app_name">Stop BT Music</string>
     <string name="btn_start">Iniciar monitoramento</string>
     <string name="btn_stop">Parar monitoramento</string>
-    <string name="btn_test">Teste: iniciar sessão de reprodução</string>
+    <string name="btn_test">Teste: enviar tecla play/pause</string>
+    <string name="btn_acc">Configurações de acessibilidade</string>
     <string name="btn_battery">Isentar de otimização de bateria</string>
+    <string name="acc_summary">Pausa a música quando o Bluetooth se desconecta</string>
+    <string name="acc_desc">O Stop BT Music usa esta permissão apenas para enviar a tecla play/pause de mídia quando um dispositivo Bluetooth de áudio se desconecta. Não lê o conteúdo da tela, não intercepta toques e não controla nenhum app.</string>
 </resources>

@@ -37,6 +37,18 @@
                 android:value="Pausa a reprodução de outros apps quando um dispositivo Bluetooth se desconecta." />
         </service>
 
+        <service
+            android:name=".StopBLAccessibilityService"
+            android:exported="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/stopbl_acc" />
+        </service>
+
         <receiver
             android:name=".BootReceiver"
             android:exported="true">

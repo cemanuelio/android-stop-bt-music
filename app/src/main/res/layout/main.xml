@@ -34,6 +34,13 @@
         android:layout_marginTop="8dp"
         android:text="Pausas enviadas: 0" />
 
+    <TextView
+        android:id="@+id/tvAcc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Acessibilidade: —" />
+
     <Button
         android:id="@+id/btnStart"
         android:layout_width="match_parent"
@@ -55,6 +62,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/btn_test" />
+
+    <Button
+        android:id="@+id/btnAcc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/btn_acc" />
 
     <Button
         android:id="@+id/btnBattery"

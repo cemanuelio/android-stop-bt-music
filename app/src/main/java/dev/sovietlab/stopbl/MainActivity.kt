@@ -51,15 +51,19 @@ class MainActivity : Activity() {
             stopMonitor()
         }
         findViewById<Button>(R.id.btnTest).setOnClickListener {
-            if (!MonitorService.running) {
-                toast("Inicie o monitoramento antes do teste")
+            if (!StopBLAccessibilityService.isReady()) {
+                toast("Habilite a acessibilidade primeiro")
                 return@setOnClickListener
             }
-            startService(
-                Intent(this, MonitorService::class.java)
-                    .setAction(MonitorService.ACTION_TEST_START)
-            )
-            refresh()
+            if (!StopBLAccessibilityService.isMediaActive(this)) {
+                toast("Nada tocando no momento")
+                return@setOnClickListener
+            }
+            val ok = StopBLAccessibilityService.sendMediaPlayPause()
+            toast(if (ok) "Tecla play/pause enviada ✓" else "A tecla de mídia falhou")
+        }
+        findViewById<Button>(R.id.btnAcc).setOnClickListener {
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
         findViewById<Button>(R.id.btnBattery).setOnClickListener {
             requestIgnoreBatteryOptimizations()
@@ -144,6 +148,9 @@ class MainActivity : Activity() {
             "Último evento: ${MonitorService.lastEvent}"
         findViewById<TextView>(R.id.tvPauseCount).text =
             "Pausas enviadas: ${MonitorService.pauseCount}"
+        findViewById<TextView>(R.id.tvAcc).text =
+            "Acessibilidade: " +
+                if (StopBLAccessibilityService.isReady()) "habilitada ✓" else "desabilitada"
         findViewById<Button>(R.id.btnStart).visibility =
             if (MonitorService.running) View.GONE else View.VISIBLE
         findViewById<Button>(R.id.btnStop).visibility =
