@@ -9,8 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # A imagem do runner não garante sdkmanager no PATH; instalamos os
-      # command-line tools num diretório próprio e usamos sempre esse.
-      ANDROID_HOME: $HOME/android-sdk
+      # command-line tools num diretório próprio. Caminho absoluto fixo
+      # (variáveis em env: não passam por expansão de shell) e os dois
+      # nomes com o MESMO valor, senão o AGP aborta (a imagem já define
+      # ANDROID_SDK_ROOT apontando pro SDK pré-instalado dela).
+      ANDROID_HOME: /home/runner/android-sdk
+      ANDROID_SDK_ROOT: /home/runner/android-sdk
     steps:
       - name: Checkout
         uses: actions/checkout@v4
