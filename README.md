@@ -57,20 +57,42 @@ adb -s <SERIAL> install -r app/build/outputs/apk/debug/app-debug.apk
 
 > **Migrando da v1.0.0**: a assinatura mudou (antes era debug efêmero da CI). Desinstale o app antes de instalar o novo APK — o Android não atualiza em cima de assinatura diferente.
 
+## Instalação via GitHub
+
+Para quem não tem `adb`/ambiente de dev e vai instalar o APK da [Releases](../../releases) direto no celular:
+
+1. **Baixar o APK** da release mais recente pelo navegador do celular (ex.: Chrome) e abrir o arquivo baixado em Downloads.
+
+2. **Permitir instalação dessa fonte**: na primeira vez, o Android pergunta se você confia no app que está instalando (ex.: Chrome/Arquivos) para instalar APKs — toque em **Configurações** → ative **Permitir desta fonte** → volte e toque em **Instalar**.
+
+3. **"App bloqueado para proteger seu dispositivo" (Google Play Protect)**: como o app usa um serviço de acessibilidade (obrigatório para pausar a mídia — veja "Como funciona") e não veio da Play Store, o Play Protect bloqueia a instalação por padrão, mesmo o app sendo inofensivo. Para instalar mesmo assim:
+   - Configurações do Android → Google → **Play Protect** (ou Configurações → Segurança e privacidade → Play Protect).
+   - Nas configurações do Play Protect (ícone de engrenagem), desative **"Verificar apps com Play Protect"** temporariamente.
+   - Volte e instale o APK normalmente.
+   - **Reative a verificação do Play Protect depois de instalar** — o passo acima é só para destravar essa instalação específica.
+
+4. **Configurações restritas e passo a passo de habilitação**: depois de instalado, siga a seção [Passo a passo para habilitar](#passo-a-passo-para-habilitar) abaixo — o passo 2 (**Liberar "configurações restritas"**) é obrigatório para quem instalou fora da Play Store, senão o toggle de acessibilidade não liga.
+
 ## Passo a passo para habilitar
 
 1. **Abrir o app e conceder as permissões** — notificações e Bluetooth (diálogos do sistema). O monitoramento inicia sozinho.
 
-2. **Habilitar a acessibilidade** (obrigatório):
+2. **Liberar "configurações restritas"** (obrigatório, só nesta instalação): a partir do Android 13, apps instalados fora da Play Store (sideload) ficam com Acessibilidade, Notification Listener etc. bloqueados por padrão — o toggle do passo 3 aparece cinza/não liga mesmo que pareça ativar. Para destravar:
+   - Configurações do Android → Apps → Gerenciar apps → **Stop BT Music**.
+   - Toque no menu **⋮** (três pontinhos, canto superior direito da tela de informações do app).
+   - Toque em **"Permitir configurações restritas"** e confirme com PIN/biometria.
+   - *(acesse pela tela de Configurações do sistema, não pelo atalho de informações do app ao segurar o ícone — nessa tela o menu ⋮ não aparece.)*
+
+3. **Habilitar a acessibilidade** (obrigatório):
    - No app, toque em **"Configurações de acessibilidade"**.
    - Em "Serviços instalados", ative **Stop BT Music**.
    - O app mostra `Acessibilidade: habilitada ✓` quando estiver ligada.
 
-3. **Testar** (com música tocando nos fones BT): toque em **"Teste: enviar tecla play/pause"** — o áudio deve pausar. Repetir deve retomar.
+4. **Testar** (com música tocando nos fones BT): toque em **"Teste: enviar tecla play/pause"** — o áudio deve pausar. Repetir deve retomar.
 
-4. **Isentar de otimização de bateria**: toque em **"Isentar de otimização de bateria"** e aceite o diálogo.
+5. **Isentar de otimização de bateria**: toque em **"Isentar de otimização de bateria"** e aceite o diálogo.
 
-5. **Confiabilidade no HyperOS** (o sistema mata apps em background agressivamente):
+6. **Confiabilidade no HyperOS** (o sistema mata apps em background agressivamente):
    - **Auto-start**: Configurações → Apps → Gerenciar apps → *Início automático* → habilite o Stop BT Music.
    - **Lock nos recentes**: abra o app, vá em Recentes e trave o app (long-press no card → cadeado) para a limpeza de memória não matá-lo.
 
@@ -93,7 +115,8 @@ adb -s <SERIAL> install -r app/build/outputs/apk/debug/app-debug.apk
 
 ## Troubleshooting
 
-- **Acessibilidade "desabilitada"**: o serviço não está ativo — repita o passo 2. Sem ela, o app não consegue pausar nada (mostra `Habilite a acessibilidade para pausar`).
+- **Toggle de acessibilidade não liga / volta a desligar sozinho**: configurações restritas não foram liberadas — repita o passo 2 (`Permitir configurações restritas` no menu ⋮ da tela de info do app). Sem isso o Android bloqueia a ativação silenciosamente, independente do que o app mostrar.
+- **Acessibilidade "desabilitada"**: o serviço não está ativo — repita o passo 3. Sem ela, o app não consegue pausar nada (mostra `Habilite a acessibilidade para pausar`).
 - **`Tecla de mídia não pausou`**: a tecla foi enviada 3× e o áudio continuou ativo. Raro — verifique logcat (abaixo).
 - **Nada acontece ao desconectar o BT**: confirme que o monitoramento está rodando (notificação `Monitorando…`), que a música estava de fato no A2DP, e veja o logcat:
 
