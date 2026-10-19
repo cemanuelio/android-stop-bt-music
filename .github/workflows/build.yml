@@ -1,5 +1,11 @@
 name: Build
 
+permissions:
+  # o GITHUB_TOKEN padrao pode sair sem write em contents, dependendo da
+  # configuracao do repo; sem isso o action-gh-release falha com
+  # "Resource not accessible by integration" ao criar a release
+  contents: write
+
 on:
   # Build roda só ao empurrar uma tag v*; workflow_dispatch serve de
   # gatilho manual de teste (o step de release fica inativo sem tag).
