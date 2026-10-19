@@ -41,11 +41,21 @@ Alternativa: com o repo no GitHub, o workflow `.github/workflows/build.yml` roda
 git tag v1.0.0 && git push origin v1.0.0
 ```
 
+## Assinatura
+
+Todos os builds (local e CI) usam o **mesmo keystore de release** (`keystore/stopbl.keystore`, alias `stopbl`), para que o APK atualize de forma estável independentemente de onde foi gerado — e para evitar o falso positivo do Play Protect/Device Integrity que bloqueia APK assinados em debug com serviço de acessibilidade.
+
+- `signing.properties` e `keystore/` estão **fora do git** (`.gitignore`). Sem `signing.properties`, o build cai automaticamente no debug keystore padrão do Gradle (nunca quebra em clone limpo).
+- A CI reconstroi o keystore e o `signing.properties` a partir dos secrets `STOPBL_*` do repo (step "Setup release signing" no workflow).
+- **Backup obrigatório**: perder o `keystore/stopbl.keystore` torna o app impossível de atualizar no aparelho (a assinatura muda e o Android não instala por cima). Guarde uma cópia fora do repo.
+
 ## Instalação
 
 ```bash
 adb -s <SERIAL> install -r app/build/outputs/apk/debug/app-debug.apk
 ```
+
+> **Migrando da v1.0.0**: a assinatura mudou (antes era debug efêmero da CI). Desinstale o app antes de instalar o novo APK — o Android não atualiza em cima de assinatura diferente.
 
 ## Passo a passo para habilitar
 

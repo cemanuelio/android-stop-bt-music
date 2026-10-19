@@ -51,6 +51,22 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Setup release signing
+        # Reconstroi o keystore de release + signing.properties a partir de
+        # secrets do repo. Sem isso o assembleDebug sairia com um debug
+        # keystore efêmero do runner, e o APK não atualizaria sobre o
+        # instalado no aparelho (assinatura diferente) nem passaria no
+        # Device Integrity do Play Protect.
+        run: |
+          mkdir -p keystore
+          echo "${{ secrets.STOPBL_KEYSTORE_B64 }}" | base64 -d > keystore/stopbl.keystore
+          {
+            echo "storeFile=keystore/stopbl.keystore"
+            echo "storePassword=${{ secrets.STOPBL_STORE_PASSWORD }}"
+            echo "keyAlias=${{ secrets.STOPBL_KEY_ALIAS }}"
+            echo "keyPassword=${{ secrets.STOPBL_KEY_PASSWORD }}"
+          } > signing.properties
+
       - name: Build APK (debug)
         run: ./gradlew assembleDebug --no-daemon --stacktrace
 

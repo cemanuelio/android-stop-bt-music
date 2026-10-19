@@ -3,6 +3,18 @@ plugins {
     id "org.jetbrains.kotlin.android"
 }
 
+// Assinatura: usa um keystore de release estável definido em
+// signing.properties (arquivo fora do git, com senhas reais). Sem ele,
+// o build cai no debug keystore padrão do Gradle, para nunca quebrar em
+// clone limpo. A identidade precisa ser a mesma no local e na CI, senão
+// o app não atualiza entre builds de origens diferentes.
+def signingFile = rootProject.file("signing.properties")
+def signingProps = new Properties()
+if (signingFile.exists()) {
+    signingProps.load(new FileInputStream(signingFile))
+}
+def hasSigning = signingFile.exists() && signingProps["storeFile"] != null
+
 android {
     namespace "dev.sovietlab.stopbl"
     compileSdk 36
@@ -11,13 +23,35 @@ android {
         applicationId "dev.sovietlab.stopbl"
         minSdk 36
         targetSdk 36
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.0.1"
+    }
+
+    signingConfigs {
+        if (hasSigning) {
+            release {
+                storeFile rootProject.file(signingProps["storeFile"])
+                storePassword signingProps["storePassword"]
+                keyAlias signingProps["keyAlias"]
+                keyPassword signingProps["keyPassword"]
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
+            if (hasSigning) {
+                signingConfig signingConfigs.release
+            }
+        }
+        debug {
+            // assina o debug com o release keystore também, para o APK que
+            // a CI publica (assembleDebug) ter a MESMA identidade dos
+            // builds locais.
+            if (hasSigning) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 

@@ -3,3 +3,8 @@ build/
 local.properties
 *.iml
 .idea/
+
+# identidade de assinatura do app: nunca vai pro git (perder o keystore
+# torna o app irrecuperável para atualização). CI recebe via secrets.
+signing.properties
+keystore/

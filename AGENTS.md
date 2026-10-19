@@ -24,6 +24,7 @@ Projeto em pt-BR: comentários, textos de UI/erro e docs em português; identifi
 - O workflow instala SDK próprio em `/home/runner/android-sdk`; `ANDROID_HOME` e `ANDROID_SDK_ROOT` precisam ser iguais (a imagem pré-definindo `SDK_ROOT` outro → AGP aborta). `env:` no YAML **não** expande shell/expressões — use caminho absoluto fixo.
 - `gh run rerun` reusa o workflow do commit ORIGINAL do run; para testar fix no workflow, re-aponte a tag pro commit corrigido e re-push.
 - Mantenha o `README.md` sincronizado com mudanças no workflow.
+- **Assinatura estável**: `keystore/stopbl.keystore` + `signing.properties` ficam **fora do git** (repo público — perder/vazar o keystore mata as atualizações do app; backup fora do repo). A CI reconstroi ambos dos secrets `STOPBL_*` no step "Setup release signing". O buildType `debug` é assinado com a chave de release para local e CI terem a mesma identidade (sem `signing.properties`, cai no debug padrão).
 
 ## Arquitetura / API 36
 
