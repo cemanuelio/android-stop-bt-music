@@ -35,6 +35,8 @@ rsync -az batman@pc.lan:~/dev/stop-bl-music/app/build/outputs/apk/debug/app-debu
   app/build/outputs/apk/debug/
 ```
 
+Alternativa: com o repo no GitHub, o workflow `.github/workflows/build.yml` roda `assembleDebug` em cada push e publica o APK como artefato do build.
+
 ## Instalação
 
 ```bash
