@@ -10,7 +10,7 @@ jobs:
     env:
       # A imagem do runner não garante sdkmanager no PATH; instalamos os
       # command-line tools num diretório próprio e usamos sempre esse.
-      ANDROID_HOME: ${{ runner.temp }}/android-sdk
+      ANDROID_HOME: $HOME/android-sdk
     steps:
       - name: Checkout
         uses: actions/checkout@v4
